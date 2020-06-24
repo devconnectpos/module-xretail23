@@ -87,6 +87,22 @@
                     <service>SM\Customer\Repositories\CustomerManagement</service>
                     <function>getCustomerGroupData</function>
                 </customer-group>
+                <customer-occupation>
+                    <method>Get</method>
+                    <service>SM\Customer\Repositories\CustomerManagement</service>
+                    <function>getCustomerOccupationData</function>
+                </customer-occupation>
+                <customer-occupation>
+                    <method>Post</method>
+                    <service>SM\Customer\Repositories\CustomerManagement</service>
+                    <function>getCustomerOccupationData</function>
+                </customer-occupation>
+                <!--Provinces/Districts-->
+                <provinces-districts>
+                    <method>Get</method>
+                    <service>SM\XRetail\Repositories\ProvincesDistrictsManagement</service>
+                    <function>getProvincesDistrictsData</function>
+                </provinces-districts>
                 <!--Directory Data-->
                 <country-region>
                     <method>Get</method>
