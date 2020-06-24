@@ -20,6 +20,7 @@ class DataConfig extends AbstractHelper
     const PAGE_SIZE_LOAD_PRODUCT        = 100;
     const PAGE_SIZE_LOAD_PRODUCT_CACHED = 5000;
     const PAGE_SIZE_LOAD_CUSTOMER       = 200;
+    const PAGE_SIZE_LOAD_PROVINCE       = 20;
     const PAGE_SIZE_LOAD_DATA           = 200;
 
     /**

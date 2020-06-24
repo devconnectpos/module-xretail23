@@ -83,6 +83,10 @@ class UpgradeSchema implements UpgradeSchemaInterface {
         if (version_compare($context->getVersion(), '0.4.0', '<')) {
             $this->modifyColumnCashierIdOutlet($setup);
         }
+        if (version_compare($context->getVersion(), '0.4.1', '<')) {
+            $this->createProvincesTable($setup);
+            $this->createDistrictsTable($setup);
+        }
     }
 
     /**
@@ -1151,5 +1155,118 @@ class UpgradeSchema implements UpgradeSchemaInterface {
         );
 
         $setup->endSetup();
+    }
+
+
+    /**
+     * @param \Magento\Framework\Setup\SchemaSetupInterface $setup
+     *
+     * @throws \Zend_Db_Exception
+     */
+    protected function createProvincesTable(SchemaSetupInterface $setup)
+    {
+        $installer = $setup;
+        $installer->startSetup();
+        if (!$setup->getConnection()->isTableExists($setup->getTable('sm_xretail_provinces'))) {
+            $table = $installer->getConnection()->newTable(
+                $installer->getTable('sm_xretail_provinces')
+            )->addColumn(
+                'id',
+                Table::TYPE_INTEGER,
+                null,
+                ['identity' => true, 'nullable' => false, 'primary' => true, 'unsigned' => true,],
+                'Entity ID'
+            )->addColumn(
+                'name',
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false,],
+                'Province Name'
+            )->addColumn(
+                'value',
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false,],
+                'Province Value'
+            )->addColumn(
+                'created_at',
+                Table::TYPE_TIMESTAMP,
+                null,
+                ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
+                'Created At'
+            )->addColumn(
+                'updated_at',
+                Table::TYPE_TIMESTAMP,
+                null,
+                ['nullable' => false, 'default' => Table::TIMESTAMP_INIT_UPDATE],
+                'Updated At');
+            $installer->getConnection()->createTable($table);
+        }
+
+        $installer->endSetup();
+    }
+
+    /**
+     * @param \Magento\Framework\Setup\SchemaSetupInterface $setup
+     *
+     * @throws \Zend_Db_Exception
+     */
+    protected function createDistrictsTable(SchemaSetupInterface $setup)
+    {
+        $installer = $setup;
+        $installer->startSetup();
+        if (!$setup->getConnection()->isTableExists($setup->getTable('sm_xretail_districts'))) {
+            $table = $installer->getConnection()->newTable(
+                $installer->getTable('sm_xretail_districts')
+            )->addColumn(
+                'id',
+                Table::TYPE_INTEGER,
+                null,
+                ['identity' => true, 'nullable' => false, 'primary' => true, 'unsigned' => true,],
+                'Entity ID'
+            )->addColumn(
+                'province_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['nullable' => false, 'unsigned' => true,],
+                'Province ID'
+            )->addColumn(
+                'name',
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false,],
+                'Districts Name'
+            )->addColumn(
+                'value',
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false,],
+                'Districts Value'
+            )->addColumn(
+                'created_at',
+                Table::TYPE_TIMESTAMP,
+                null,
+                ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
+                'Created At'
+            )->addColumn(
+                'updated_at',
+                Table::TYPE_TIMESTAMP,
+                null,
+                ['nullable' => false, 'default' => Table::TIMESTAMP_INIT_UPDATE],
+                'Updated At');
+
+            $installer->getConnection()->createTable($table);
+
+            $installer->getConnection()->addForeignKey(
+                $installer->getFkName('id', 'province_id', $installer->getTable('sm_xretail_provinces'), 'id'),
+                $installer->getTable('sm_xretail_districts'),
+                'province_id',
+                $installer->getTable('sm_xretail_provinces'),
+                'id',
+                Table::ACTION_CASCADE
+            );
+        }
+
+        $installer->endSetup();
     }
 }
