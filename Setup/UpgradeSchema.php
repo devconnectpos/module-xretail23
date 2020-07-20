@@ -87,6 +87,9 @@ class UpgradeSchema implements UpgradeSchemaInterface {
             $this->createProvincesTable($setup);
             $this->createDistrictsTable($setup);
         }
+        if (version_compare($context->getVersion(), '0.4.2', '<')) {
+            $this->addOutletLogo($setup);
+        }
     }
 
     /**
@@ -1266,6 +1269,39 @@ class UpgradeSchema implements UpgradeSchemaInterface {
                 Table::ACTION_CASCADE
             );
         }
+
+        $installer->endSetup();
+    }
+
+    protected function addOutletLogo(SchemaSetupInterface $setup)
+    {
+        $installer = $setup;
+        $installer->startSetup();
+
+        $tableName = $installer->getTable('sm_xretail_outlet');
+        $installer->getConnection()
+                  ->addColumn(
+                      $tableName,
+                      'insert_outlet_logo_from',
+                      [
+                          'type'     => Table::TYPE_TEXT,
+                          'length'   => 255,
+                          'nullable' => false,
+                          'comment'  => 'Insert Outlet Logo From'
+                      ]
+                  );
+
+        $installer->getConnection()
+                  ->addColumn(
+                      $tableName,
+                      'outlet_logo_url',
+                      [
+                          'type'     => Table::TYPE_TEXT,
+                          'length'   => 25500,
+                          'nullable' => false,
+                          'comment'  => 'Outlet Logo Url'
+                      ]
+                  );
 
         $installer->endSetup();
     }
