@@ -13,6 +13,8 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\PageCache\Model\Config;
 use SM\XRetail\Model\Api\Configuration;
+use Magento\Framework\ObjectManagerInterface;
+use SM\XRetail\Auth\Authenticate;
 
 class ApiAbstract extends Action
 {
@@ -49,24 +51,31 @@ class ApiAbstract extends Action
      * @var integer
      */
     private $statusCode;
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    private $objectManager;
+    private $accessTokenManagement;
 
     /**
      * ApiAbstract constructor.
-     *
-     * @param \Magento\Framework\App\Action\Context              $context
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \SM\XRetail\Model\Api\Configuration                $configuration
-     * @param \Magento\PageCache\Model\Config                    $config
+     * @param Context $context
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Configuration $configuration
+     * @param Config $config
+     * @param ObjectManagerInterface $objectManager
      */
     public function __construct(
         Context $context,
         ScopeConfigInterface $scopeConfig,
         Configuration $configuration,
-        Config $config
+        Config $config,
+        ObjectManagerInterface $objectManager
     ) {
         $this->config      = $config;
         $this->apiConfig  = $configuration;
         $this->scopeConfig = $scopeConfig;
+        $this->objectManager = $objectManager;
         parent::__construct($context);
     }
 
@@ -81,7 +90,8 @@ class ApiAbstract extends Action
     }
 
     /**
-     * @return \Magento\Framework\App\Response\Http
+     * @return mixed
+     * @throws Exception
      */
     protected function jsonOutput()
     {
@@ -94,6 +104,11 @@ class ApiAbstract extends Action
                  ->setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS, PATCH, DELETE', true)
                  ->setHeader("Access-Control-Allow-Origin", "*", true);
 
+        if (Authenticate::$isExpiredToken === true) {
+            $response->setHeader('X-Token', $this->getLastTokenValue(), true);
+            $response->setHeader('Access-Control-Expose-Headers', "*", true);
+        }
+
         /*See Note: Magento 2 Full Page caching */
         if ($this->config->isEnabled()) {
             /*
@@ -104,6 +119,37 @@ class ApiAbstract extends Action
         }
 
         return $response->setBody(json_encode($this->output));
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getAccessTokenManagement()
+    {
+        if (is_null($this->accessTokenManagement)) {
+            $this->accessTokenManagement = $this->objectManager->get('\SM\XRetail\Repositories\AccessTokenManagement');
+        }
+        return $this->accessTokenManagement;
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    private function getLastTokenValue() {
+        $userId = $this->getRequest()->getParam('userId');
+
+        if (!$userId) {
+            throw new Exception(__('Wrong Username. Please try again'));
+        }
+
+        $token = $this->getAccessTokenManagement()->getTokenCollectionByUserId($userId);
+
+        if ($token !== null) {
+            return $token->getData('token');
+        }
+
+        return null;
     }
 
     /**
