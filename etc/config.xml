@@ -87,6 +87,11 @@
                     <service>SM\Customer\Repositories\CustomerManagement</service>
                     <function>getCustomerGroupData</function>
                 </customer-group>
+                <scg-customer-group>
+                    <method>Get</method>
+                    <service>SM\Customer\Repositories\CustomerManagement</service>
+                    <function>getScgCustomerGroupData</function>
+                </scg-customer-group>
                 <customer-occupation>
                     <method>Get</method>
                     <service>SM\Customer\Repositories\CustomerManagement</service>
