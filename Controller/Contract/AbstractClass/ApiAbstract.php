@@ -70,12 +70,14 @@ class ApiAbstract extends Action
         ScopeConfigInterface $scopeConfig,
         Configuration $configuration,
         Config $config,
-        ObjectManagerInterface $objectManager
+        ObjectManagerInterface $objectManager,
+        JsonSerializer $jsonSerializer
     ) {
         $this->config      = $config;
         $this->apiConfig  = $configuration;
         $this->scopeConfig = $scopeConfig;
         $this->objectManager = $objectManager;
+        $this->jsonSerializer = $jsonSerializer;
         parent::__construct($context);
     }
 
