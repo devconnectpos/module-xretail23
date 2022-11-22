@@ -15,6 +15,7 @@ use Magento\Framework\ObjectManagerInterface;
 use Magento\PageCache\Model\Config;
 use SM\XRetail\Auth\Authenticate;
 use SM\XRetail\Model\Api\Configuration;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 
 class ApiAbstract extends Action
 {
