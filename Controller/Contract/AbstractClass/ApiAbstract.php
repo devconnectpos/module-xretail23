@@ -57,6 +57,7 @@ class ApiAbstract extends Action
      */
     private $objectManager;
     private $accessTokenManagement;
+    protected $jsonSerializer;
 
     /**
      * ApiAbstract constructor.
